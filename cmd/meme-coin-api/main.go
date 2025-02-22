@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/nlsh710599/still-practice/internal/config"
+	"github.com/nlsh710599/still-practice/internal/database"
 	"github.com/nlsh710599/still-practice/internal/route"
 
 	"net/http"
@@ -24,7 +25,12 @@ func main() {
 
 	r := gin.New()
 
-	err = route.Setup(r)
+	pg, err := database.NewPostgres(config.PG_HOST, config.PG_USER, config.PG_PWD, config.PG_DB, config.PG_PORT)
+	if err != nil {
+		fmt.Printf("error creating postgres client: %v", err)
+	}
+
+	err = route.Setup(r, pg)
 	if err != nil {
 		fmt.Printf("error setting up routes: %v", err)
 		return

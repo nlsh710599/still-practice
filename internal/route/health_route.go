@@ -8,20 +8,16 @@ import (
 	"github.com/nlsh710599/still-practice/internal/service"
 )
 
-type HealthCheckResponse struct {
-	Status bool `json:"status"`
-}
-
-func HealthCheckRoute(healthCheckSrv service.HealthService) gin.HandlerFunc {
+func HealthRoute(healthSrv service.HealthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		result, err := healthCheckSrv.Health(c.Request.Context())
+		result, err := healthSrv.Health(c.Request.Context())
 		if err != nil {
 			_ = c.Error(err)
 			return
 		}
-		c.JSON(http.StatusOK, ServerResponse[HealthCheckResponse]{
+		c.JSON(http.StatusOK, ServerResponse[HealthResponse]{
 			Code: common.Success,
-			Data: HealthCheckResponse{
+			Data: HealthResponse{
 				Status: result.Status,
 			},
 		})

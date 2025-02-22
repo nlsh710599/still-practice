@@ -7,19 +7,19 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewPostgres(host, username, password, databaseName string, port int) *gorm.DB {
+func NewPostgres(host, username, password, databaseName, port string) (*gorm.DB, error) {
 	instance, err := createClient(host, username, password, databaseName, port)
 
 	if err != nil {
 		fmt.Printf("Failed to create client: %v", err)
-		return nil
+		return nil, err
 	}
 
-	return instance
+	return instance, nil
 }
 
-func createClient(host, username, password, databaseName string, port int) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d",
+func createClient(host, username, password, databaseName, port string) (*gorm.DB, error) {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s",
 		host, username, password, databaseName, port,
 	)
 

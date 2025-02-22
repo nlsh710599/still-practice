@@ -1,15 +1,30 @@
 package route
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
+	m "github.com/nlsh710599/still-practice/internal/database/model"
 	"github.com/nlsh710599/still-practice/internal/service"
+
+	"gorm.io/gorm"
 )
 
-// Setup is a function that sets up the routes and services for the admin api
-func Setup(r *gin.Engine) error {
-	healthSrv := &service.HealthServiceImpl{}
+func Setup(r *gin.Engine, db *gorm.DB) error {
+	memeCoinRepo := &m.MemeCoinRepositoryImpl{Client: db}
+	err := memeCoinRepo.InitTable()
+	if err != nil {
+		fmt.Printf("Failed to init meme coin table: %v\n", err)
+		return err
+	}
+	memeCoinService := &service.MemeCoinServiceServiceImpl{MemeCoinRepo: memeCoinRepo}
 
-	r.GET("/health", HealthCheckRoute(healthSrv))
+	healthService := &service.HealthServiceImpl{}
+
+	r.GET("/health", HealthRoute(healthService))
+
+	memeCoinGroup := r.Group("/meme-coin")
+	memeCoinGroup.GET("/:id", GetMemeCoinRoute(memeCoinService))
 
 	return nil
 }
