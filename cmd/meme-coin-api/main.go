@@ -7,12 +7,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/nlsh710599/still-practice/internal/config"
+	"github.com/nlsh710599/still-practice/internal/route"
 
 	"net/http"
 	"os/signal"
 	"syscall"
 	"time"
-	_ "time/tzdata" // for timezones
 )
 
 func main() {
@@ -23,11 +23,12 @@ func main() {
 	}
 
 	r := gin.New()
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status": "ok",
-		})
-	})
+
+	err = route.Setup(r)
+	if err != nil {
+		fmt.Printf("error setting up routes: %v", err)
+		return
+	}
 
 	srv := &http.Server{
 		Addr:    config.ServiceAddr,
