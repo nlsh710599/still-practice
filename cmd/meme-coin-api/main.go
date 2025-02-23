@@ -25,7 +25,7 @@ func main() {
 
 	r := gin.New()
 
-	pg, err := database.NewPostgres(config.PG_HOST, config.PG_USER, config.PG_PWD, config.PG_DB, config.PG_PORT)
+	pg, err := database.NewPostgres(config.DSN)
 	if err != nil {
 		fmt.Printf("error creating postgres client: %v", err)
 	}

@@ -17,8 +17,8 @@ func IsNotFoundError(err error) bool {
 	return err != nil && errors.Is(err, gorm.ErrRecordNotFound)
 }
 
-func NewPostgres(host, username, password, databaseName, port string) (*gorm.DB, error) {
-	instance, err := createClient(host, username, password, databaseName, port)
+func NewPostgres(dsn string) (*gorm.DB, error) {
+	instance, err := createClient(dsn)
 
 	if err != nil {
 		fmt.Printf("Failed to create client: %v", err)
@@ -28,11 +28,7 @@ func NewPostgres(host, username, password, databaseName, port string) (*gorm.DB,
 	return instance, nil
 }
 
-func createClient(host, username, password, databaseName, port string) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s",
-		host, username, password, databaseName, port,
-	)
-
+func createClient(dsn string) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
