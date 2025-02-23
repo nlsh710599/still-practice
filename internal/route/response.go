@@ -2,6 +2,7 @@ package route
 
 import (
 	"github.com/nlsh710599/still-practice/internal/common"
+	"github.com/nlsh710599/still-practice/internal/result"
 )
 
 func SuccessResponse() ServerResponse[string] {
@@ -17,7 +18,7 @@ type ServerResponse[T any] struct {
 }
 
 type HealthResponse struct {
-	Status bool `json:"status"`
+	result.HealthResult
 }
 
 type GetMemeCoinResponse struct {

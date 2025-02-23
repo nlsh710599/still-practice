@@ -18,7 +18,7 @@ func HealthRoute(healthSrv service.HealthService) gin.HandlerFunc {
 		c.JSON(http.StatusOK, ServerResponse[HealthResponse]{
 			Code: common.Success,
 			Data: HealthResponse{
-				Status: result.Status,
+				HealthResult: result,
 			},
 		})
 	}
