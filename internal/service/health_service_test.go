@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHealth(t *testing.T) {
+func TestHealthService(t *testing.T) {
 	t.Run("Test Health", func(t *testing.T) {
 		healthService := &HealthServiceImpl{}
 		healthResult, err := healthService.Health(context.Background())

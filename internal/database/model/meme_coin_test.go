@@ -39,7 +39,7 @@ func Test_MemeCoinRepository(t *testing.T) {
 
 		err = repo.CreateMemeCoin(ctx, memeCoin)
 		assert.Error(t, err)
-		assert.Equal(t, database.IsDuplicatedKeyError(err), true)
+		assert.True(t, database.IsDuplicatedKeyError(err))
 
 	})
 
@@ -53,7 +53,7 @@ func Test_MemeCoinRepository(t *testing.T) {
 		var NotFoundID uint = 999
 		retrieved, err = repo.GetMemeCoin(ctx, NotFoundID)
 		assert.Error(t, err)
-		assert.Equal(t, database.IsNotFoundError(err), true)
+		assert.True(t, database.IsNotFoundError(err))
 		assert.Nil(t, retrieved)
 	})
 
@@ -69,7 +69,7 @@ func Test_MemeCoinRepository(t *testing.T) {
 		var NotFoundID uint = 999
 		err = repo.UpdateMemeCoin(ctx, NotFoundID, updatedDescription)
 		assert.Error(t, err)
-		assert.Equal(t, database.IsNotFoundError(err), true)
+		assert.True(t, database.IsNotFoundError(err))
 	})
 
 	t.Run("PokeMemeCoin", func(t *testing.T) {
@@ -83,7 +83,7 @@ func Test_MemeCoinRepository(t *testing.T) {
 		var NotFoundID uint = 999
 		err = repo.PokeMemeCoin(ctx, NotFoundID)
 		assert.Error(t, err)
-		assert.Equal(t, database.IsNotFoundError(err), true)
+		assert.True(t, database.IsNotFoundError(err))
 	})
 
 	t.Run("DeleteMemeCoin", func(t *testing.T) {
@@ -92,12 +92,12 @@ func Test_MemeCoinRepository(t *testing.T) {
 
 		retrieved, err := repo.GetMemeCoin(ctx, memeCoin.ID)
 		assert.Error(t, err)
-		assert.Equal(t, database.IsNotFoundError(err), true)
+		assert.True(t, database.IsNotFoundError(err))
 		assert.Nil(t, retrieved)
 
 		var NotFoundID uint = 999
 		err = repo.DeleteMemeCoin(ctx, NotFoundID)
 		assert.Error(t, err)
-		assert.Equal(t, database.IsNotFoundError(err), true)
+		assert.True(t, database.IsNotFoundError(err))
 	})
 }
