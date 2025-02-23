@@ -12,16 +12,21 @@ type MemeCoinEntity struct {
 	Name            string    `gorm:"unique;not null" json:"name"`
 	Description     string    `json:"description"`
 	CreatedAt       time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP;not null"`
-	PopularityScore int       `json:"popularity_score"`
+	PopularityScore int       `gorm:"default:0" json:"popularity_score"`
 }
 
 type MemeCoinRepository interface {
 	InitTable() error
 	GetMemeCoin(ctx context.Context, id uint) (*MemeCoinEntity, error)
+	CreateMemeCoin(ctx context.Context, memeCoin *MemeCoinEntity) error
 }
 
 type MemeCoinRepositoryImpl struct {
 	Client *gorm.DB
+}
+
+func (repo *MemeCoinRepositoryImpl) InitTable() error {
+	return repo.Client.AutoMigrate(&MemeCoinEntity{})
 }
 
 func (repo *MemeCoinRepositoryImpl) GetMemeCoin(ctx context.Context, id uint) (*MemeCoinEntity, error) {
@@ -33,6 +38,7 @@ func (repo *MemeCoinRepositoryImpl) GetMemeCoin(ctx context.Context, id uint) (*
 	return &memeCoin, nil
 }
 
-func (repo *MemeCoinRepositoryImpl) InitTable() error {
-	return repo.Client.AutoMigrate(&MemeCoinEntity{})
+func (repo *MemeCoinRepositoryImpl) CreateMemeCoin(ctx context.Context, memeCoin *MemeCoinEntity) error {
+	// on conflict do nothing
+	return repo.Client.WithContext(ctx).Create(memeCoin).Error
 }

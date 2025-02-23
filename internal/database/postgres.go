@@ -2,10 +2,19 @@ package database
 
 import (
 	"fmt"
+	"strings"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
+func IsDuplicatedKeyError(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "duplicate key value violates unique")
+}
+
+func IsNotFoundError(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "record not found")
+}
 
 func NewPostgres(host, username, password, databaseName, port string) (*gorm.DB, error) {
 	instance, err := createClient(host, username, password, databaseName, port)

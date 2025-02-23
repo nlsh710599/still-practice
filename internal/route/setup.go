@@ -24,6 +24,7 @@ func Setup(r *gin.Engine, db *gorm.DB) error {
 	r.GET("/health", HealthRoute(healthService))
 
 	memeCoinGroup := r.Group("/meme-coin")
+	memeCoinGroup.POST("", CreateMemeCoinRoute(memeCoinService))
 	memeCoinGroup.GET("/:id", GetMemeCoinRoute(memeCoinService))
 
 	return nil

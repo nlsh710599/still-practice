@@ -9,6 +9,7 @@ import (
 
 type MemeCoinService interface {
 	GetMemeCoinById(ctx context.Context, id uint) (result.GetMemeCoinResult, error)
+	CreateMemeCoin(ctx context.Context, name string, description string) error
 }
 
 type MemeCoinServiceServiceImpl struct {
@@ -23,4 +24,16 @@ func (service *MemeCoinServiceServiceImpl) GetMemeCoinById(ctx context.Context, 
 	return result.GetMemeCoinResult{
 		MemeCoinEntity: *memeCoin,
 	}, nil
+}
+
+func (service *MemeCoinServiceServiceImpl) CreateMemeCoin(ctx context.Context, name string, description string) error {
+	memeCoin := &m.MemeCoinEntity{
+		Name:        name,
+		Description: description,
+	}
+	err := service.MemeCoinRepo.CreateMemeCoin(ctx, memeCoin)
+	if err != nil {
+		return err
+	}
+	return nil
 }
