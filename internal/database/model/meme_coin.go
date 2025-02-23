@@ -19,6 +19,7 @@ type MemeCoinRepository interface {
 	InitTable() error
 	GetMemeCoin(ctx context.Context, id uint) (*MemeCoinEntity, error)
 	CreateMemeCoin(ctx context.Context, memeCoin *MemeCoinEntity) error
+	UpdateMemeCoin(ctx context.Context, id uint, description string) error
 }
 
 type MemeCoinRepositoryImpl struct {
@@ -39,6 +40,13 @@ func (repo *MemeCoinRepositoryImpl) GetMemeCoin(ctx context.Context, id uint) (*
 }
 
 func (repo *MemeCoinRepositoryImpl) CreateMemeCoin(ctx context.Context, memeCoin *MemeCoinEntity) error {
-	// on conflict do nothing
 	return repo.Client.WithContext(ctx).Create(memeCoin).Error
+}
+
+func (repo *MemeCoinRepositoryImpl) UpdateMemeCoin(ctx context.Context, id uint, description string) error {
+	res := repo.Client.WithContext(ctx).Model(&MemeCoinEntity{}).Where("id = ?", id).Update("description", description)
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return res.Error
 }

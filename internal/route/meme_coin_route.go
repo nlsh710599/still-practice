@@ -82,3 +82,43 @@ func CreateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 		c.JSON(http.StatusOK, SuccessResponse())
 	}
 }
+
+func UpdateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var params updateMemeCoinParams
+		if err := c.ShouldBindUri(&params); err != nil {
+			c.JSON(http.StatusOK, ServerResponse[error]{
+				Code: common.InvalidArgument,
+				Data: common.ErrIDRequired,
+			})
+			return
+		}
+
+		var request UpdateMemeCoinRequest
+		if err := c.ShouldBind(&request); err != nil {
+			c.JSON(http.StatusOK, ServerResponse[error]{
+				Code: common.InvalidArgument,
+				Data: common.ErrIDRequired,
+			})
+			return
+		}
+
+		err := memeCoinSrv.UpdateMemeCoin(c.Request.Context(), params.ID, request.Description)
+		if err != nil {
+			if database.IsNotFoundError(err) {
+				c.JSON(http.StatusOK, ServerResponse[error]{
+					Code: common.InvalidArgument,
+					Data: common.ErrNotFound,
+				})
+			} else {
+				c.JSON(http.StatusOK, ServerResponse[error]{
+					Code: common.InternalServerError,
+					Data: common.ErrInternalServer,
+				})
+			}
+			return
+		}
+
+		c.JSON(http.StatusOK, SuccessResponse())
+	}
+}

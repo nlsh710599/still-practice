@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -13,7 +14,7 @@ func IsDuplicatedKeyError(err error) bool {
 }
 
 func IsNotFoundError(err error) bool {
-	return err != nil && strings.Contains(err.Error(), "record not found")
+	return err != nil && errors.Is(err, gorm.ErrRecordNotFound)
 }
 
 func NewPostgres(host, username, password, databaseName, port string) (*gorm.DB, error) {
