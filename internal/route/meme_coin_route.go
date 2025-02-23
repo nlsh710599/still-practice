@@ -153,3 +153,34 @@ func DeleteMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 		c.JSON(http.StatusOK, SuccessResponse())
 	}
 }
+
+func PokeMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var params pokeMemeCoinParams
+		if err := c.ShouldBindUri(&params); err != nil {
+			c.JSON(http.StatusOK, ServerResponse[error]{
+				Code: common.InvalidArgument,
+				Data: common.ErrMissingField,
+			})
+			return
+		}
+
+		err := memeCoinSrv.PokeMemeCoin(c.Request.Context(), params.ID)
+		if err != nil {
+			if database.IsNotFoundError(err) {
+				c.JSON(http.StatusOK, ServerResponse[error]{
+					Code: common.InvalidArgument,
+					Data: common.ErrNotFound,
+				})
+			} else {
+				c.JSON(http.StatusOK, ServerResponse[error]{
+					Code: common.InternalServerError,
+					Data: common.ErrInternalServer,
+				})
+			}
+			return
+		}
+
+		c.JSON(http.StatusOK, SuccessResponse())
+	}
+}

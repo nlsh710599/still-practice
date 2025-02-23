@@ -21,6 +21,7 @@ type MemeCoinRepository interface {
 	CreateMemeCoin(ctx context.Context, memeCoin *MemeCoinEntity) error
 	UpdateMemeCoin(ctx context.Context, id uint, description string) error
 	DeleteMemeCoin(ctx context.Context, id uint) error
+	PokeMemeCoin(ctx context.Context, id uint) error
 }
 
 type MemeCoinRepositoryImpl struct {
@@ -54,6 +55,14 @@ func (repo *MemeCoinRepositoryImpl) UpdateMemeCoin(ctx context.Context, id uint,
 
 func (repo *MemeCoinRepositoryImpl) DeleteMemeCoin(ctx context.Context, id uint) error {
 	res := repo.Client.WithContext(ctx).Where("id = ?", id).Delete(&MemeCoinEntity{})
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return res.Error
+}
+
+func (repo *MemeCoinRepositoryImpl) PokeMemeCoin(ctx context.Context, id uint) error {
+	res := repo.Client.WithContext(ctx).Model(&MemeCoinEntity{}).Where("id = ?", id).Update("popularity_score", gorm.Expr("popularity_score + 1"))
 	if res.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}

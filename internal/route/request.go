@@ -20,3 +20,7 @@ type UpdateMemeCoinRequest struct {
 type deleteMemeCoinParams struct {
 	ID uint `uri:"id" binding:"required"`
 }
+
+type pokeMemeCoinParams struct {
+	ID uint `uri:"id" binding:"required"`
+}

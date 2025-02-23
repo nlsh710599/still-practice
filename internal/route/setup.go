@@ -28,6 +28,7 @@ func Setup(r *gin.Engine, db *gorm.DB) error {
 	memeCoinGroup.GET("/:id", GetMemeCoinRoute(memeCoinService))
 	memeCoinGroup.PUT("/:id", UpdateMemeCoinRoute(memeCoinService))
 	memeCoinGroup.DELETE("/:id", DeleteMemeCoinRoute(memeCoinService))
+	memeCoinGroup.PUT("/:id/poke", PokeMemeCoinRoute(memeCoinService))
 
 	return nil
 }

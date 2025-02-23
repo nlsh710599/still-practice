@@ -12,6 +12,7 @@ type MemeCoinService interface {
 	CreateMemeCoin(ctx context.Context, name string, description string) error
 	UpdateMemeCoin(ctx context.Context, id uint, description string) error
 	DeleteMemeCoin(ctx context.Context, id uint) error
+	PokeMemeCoin(ctx context.Context, id uint) error
 }
 
 type MemeCoinServiceServiceImpl struct {
@@ -42,4 +43,8 @@ func (service *MemeCoinServiceServiceImpl) UpdateMemeCoin(ctx context.Context, i
 
 func (service *MemeCoinServiceServiceImpl) DeleteMemeCoin(ctx context.Context, id uint) error {
 	return service.MemeCoinRepo.DeleteMemeCoin(ctx, id)
+}
+
+func (service *MemeCoinServiceServiceImpl) PokeMemeCoin(ctx context.Context, id uint) error {
+	return service.MemeCoinRepo.PokeMemeCoin(ctx, id)
 }
