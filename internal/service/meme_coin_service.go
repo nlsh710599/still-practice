@@ -8,7 +8,7 @@ import (
 )
 
 type MemeCoinService interface {
-	GetMemeCoinById(ctx context.Context, id uint) (result.GetMemeCoinResult, error)
+	GetMemeCoinById(ctx context.Context, id uint) (*result.GetMemeCoinResult, error)
 	CreateMemeCoin(ctx context.Context, name string, description string) error
 	UpdateMemeCoin(ctx context.Context, id uint, description string) error
 	DeleteMemeCoin(ctx context.Context, id uint) error
@@ -19,12 +19,12 @@ type MemeCoinServiceServiceImpl struct {
 	MemeCoinRepo m.MemeCoinRepository
 }
 
-func (service *MemeCoinServiceServiceImpl) GetMemeCoinById(ctx context.Context, id uint) (result.GetMemeCoinResult, error) {
+func (service *MemeCoinServiceServiceImpl) GetMemeCoinById(ctx context.Context, id uint) (*result.GetMemeCoinResult, error) {
 	memeCoin, err := service.MemeCoinRepo.GetMemeCoin(ctx, id)
 	if err != nil {
-		return result.GetMemeCoinResult{}, err
+		return nil, err
 	}
-	return result.GetMemeCoinResult{
+	return &result.GetMemeCoinResult{
 		MemeCoinEntity: *memeCoin,
 	}, nil
 }

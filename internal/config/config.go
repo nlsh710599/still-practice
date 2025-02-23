@@ -10,7 +10,7 @@ import (
 var (
 	Environment string
 	ServiceAddr string
-	DSN         string
+	PG_DSN      string
 )
 
 func SetVar() error {
@@ -21,7 +21,7 @@ func SetVar() error {
 
 	Environment = os.Getenv("ENVIRONMENT")
 	ServiceAddr = os.Getenv("SERVICE_ADDR")
-	DSN = os.Getenv("DSN")
+	PG_DSN = os.Getenv("PG_DSN")
 
 	return nil
 }

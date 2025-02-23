@@ -51,22 +51,24 @@ func (_m *MemeCoinService) DeleteMemeCoin(ctx context.Context, id uint) error {
 }
 
 // GetMemeCoinById provides a mock function with given fields: ctx, id
-func (_m *MemeCoinService) GetMemeCoinById(ctx context.Context, id uint) (result.GetMemeCoinResult, error) {
+func (_m *MemeCoinService) GetMemeCoinById(ctx context.Context, id uint) (*result.GetMemeCoinResult, error) {
 	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetMemeCoinById")
 	}
 
-	var r0 result.GetMemeCoinResult
+	var r0 *result.GetMemeCoinResult
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uint) (result.GetMemeCoinResult, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uint) (*result.GetMemeCoinResult, error)); ok {
 		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uint) result.GetMemeCoinResult); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uint) *result.GetMemeCoinResult); ok {
 		r0 = rf(ctx, id)
 	} else {
-		r0 = ret.Get(0).(result.GetMemeCoinResult)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*result.GetMemeCoinResult)
+		}
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {

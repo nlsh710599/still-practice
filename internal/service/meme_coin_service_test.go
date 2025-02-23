@@ -35,7 +35,7 @@ func TestMemeCoinService(t *testing.T) {
 
 		res, err := memeCoinService.GetMemeCoinById(ctx, ID)
 		assert.Nil(t, err)
-		assert.Equal(t, res, result.GetMemeCoinResult{
+		assert.Equal(t, res, &result.GetMemeCoinResult{
 			MemeCoinEntity: *record,
 		})
 		mockMemeCoinRepository.AssertExpectations(t)

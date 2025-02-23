@@ -16,7 +16,6 @@ import (
 
 func Test_health_route(t *testing.T) {
 	mockHealthService := mocks.HealthService{}
-	healthRoute := HealthRoute(&mockHealthService)
 
 	t.Run("health", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -28,7 +27,7 @@ func Test_health_route(t *testing.T) {
 			Status: true,
 		}, nil)
 
-		healthRoute(c)
+		HealthRoute(&mockHealthService)(c)
 
 		result := w.Result()
 		assert.Equal(t, http.StatusOK, result.StatusCode)

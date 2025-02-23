@@ -14,9 +14,9 @@ func GetMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var params getMemeCoinParams
 		if err := c.ShouldBindUri(&params); err != nil {
-			c.JSON(http.StatusOK, ServerResponse[error]{
+			c.JSON(http.StatusOK, ServerResponse[string]{
 				Code: common.InvalidArgument,
-				Data: common.ErrMissingField,
+				Data: common.ErrMissingField.Error(),
 			})
 			return
 		}
@@ -24,14 +24,14 @@ func GetMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 		result, err := memeCoinSrv.GetMemeCoinById(c.Request.Context(), params.ID)
 		if err != nil {
 			if database.IsNotFoundError(err) {
-				c.JSON(http.StatusOK, ServerResponse[error]{
+				c.JSON(http.StatusOK, ServerResponse[string]{
 					Code: common.InvalidArgument,
-					Data: common.ErrNotFound,
+					Data: common.ErrNotFound.Error(),
 				})
 			} else {
-				c.JSON(http.StatusOK, ServerResponse[error]{
+				c.JSON(http.StatusOK, ServerResponse[string]{
 					Code: common.InternalServerError,
-					Data: common.ErrInternalServer,
+					Data: common.ErrInternalServer.Error(),
 				})
 			}
 			return
@@ -44,7 +44,7 @@ func GetMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 	}
 }
 
-func parseIntoGetMemeCoinResponse(result result.GetMemeCoinResult) GetMemeCoinResponse {
+func parseIntoGetMemeCoinResponse(result *result.GetMemeCoinResult) GetMemeCoinResponse {
 	return GetMemeCoinResponse{
 		Name:            result.Name,
 		Description:     result.Description,
@@ -56,9 +56,9 @@ func CreateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request createMemeCoinRequest
 		if err := c.ShouldBind(&request); err != nil {
-			c.JSON(http.StatusOK, ServerResponse[error]{
+			c.JSON(http.StatusOK, ServerResponse[string]{
 				Code: common.InvalidArgument,
-				Data: common.ErrMissingField,
+				Data: common.ErrMissingField.Error(),
 			})
 			return
 		}
@@ -66,14 +66,14 @@ func CreateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 		err := memeCoinSrv.CreateMemeCoin(c.Request.Context(), request.Name, request.Description)
 		if err != nil {
 			if database.IsDuplicatedKeyError(err) {
-				c.JSON(http.StatusOK, ServerResponse[error]{
+				c.JSON(http.StatusOK, ServerResponse[string]{
 					Code: common.InvalidArgument,
-					Data: common.ErrDuplicatedKey,
+					Data: common.ErrDuplicatedKey.Error(),
 				})
 			} else {
-				c.JSON(http.StatusOK, ServerResponse[error]{
+				c.JSON(http.StatusOK, ServerResponse[string]{
 					Code: common.InternalServerError,
-					Data: common.ErrInternalServer,
+					Data: common.ErrInternalServer.Error(),
 				})
 			}
 			return
@@ -87,18 +87,18 @@ func UpdateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var params updateMemeCoinParams
 		if err := c.ShouldBindUri(&params); err != nil {
-			c.JSON(http.StatusOK, ServerResponse[error]{
+			c.JSON(http.StatusOK, ServerResponse[string]{
 				Code: common.InvalidArgument,
-				Data: common.ErrMissingField,
+				Data: common.ErrMissingField.Error(),
 			})
 			return
 		}
 
 		var request UpdateMemeCoinRequest
 		if err := c.ShouldBind(&request); err != nil {
-			c.JSON(http.StatusOK, ServerResponse[error]{
+			c.JSON(http.StatusOK, ServerResponse[string]{
 				Code: common.InvalidArgument,
-				Data: common.ErrMissingField,
+				Data: common.ErrMissingField.Error(),
 			})
 			return
 		}
@@ -106,14 +106,14 @@ func UpdateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 		err := memeCoinSrv.UpdateMemeCoin(c.Request.Context(), params.ID, request.Description)
 		if err != nil {
 			if database.IsNotFoundError(err) {
-				c.JSON(http.StatusOK, ServerResponse[error]{
+				c.JSON(http.StatusOK, ServerResponse[string]{
 					Code: common.InvalidArgument,
-					Data: common.ErrNotFound,
+					Data: common.ErrNotFound.Error(),
 				})
 			} else {
-				c.JSON(http.StatusOK, ServerResponse[error]{
+				c.JSON(http.StatusOK, ServerResponse[string]{
 					Code: common.InternalServerError,
-					Data: common.ErrInternalServer,
+					Data: common.ErrInternalServer.Error(),
 				})
 			}
 			return
@@ -127,9 +127,9 @@ func DeleteMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var params deleteMemeCoinParams
 		if err := c.ShouldBindUri(&params); err != nil {
-			c.JSON(http.StatusOK, ServerResponse[error]{
+			c.JSON(http.StatusOK, ServerResponse[string]{
 				Code: common.InvalidArgument,
-				Data: common.ErrMissingField,
+				Data: common.ErrMissingField.Error(),
 			})
 			return
 		}
@@ -137,14 +137,14 @@ func DeleteMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 		err := memeCoinSrv.DeleteMemeCoin(c.Request.Context(), params.ID)
 		if err != nil {
 			if database.IsNotFoundError(err) {
-				c.JSON(http.StatusOK, ServerResponse[error]{
+				c.JSON(http.StatusOK, ServerResponse[string]{
 					Code: common.InvalidArgument,
-					Data: common.ErrNotFound,
+					Data: common.ErrNotFound.Error(),
 				})
 			} else {
-				c.JSON(http.StatusOK, ServerResponse[error]{
+				c.JSON(http.StatusOK, ServerResponse[string]{
 					Code: common.InternalServerError,
-					Data: common.ErrInternalServer,
+					Data: common.ErrInternalServer.Error(),
 				})
 			}
 			return
@@ -158,9 +158,9 @@ func PokeMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var params pokeMemeCoinParams
 		if err := c.ShouldBindUri(&params); err != nil {
-			c.JSON(http.StatusOK, ServerResponse[error]{
+			c.JSON(http.StatusOK, ServerResponse[string]{
 				Code: common.InvalidArgument,
-				Data: common.ErrMissingField,
+				Data: common.ErrMissingField.Error(),
 			})
 			return
 		}
@@ -168,14 +168,14 @@ func PokeMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 		err := memeCoinSrv.PokeMemeCoin(c.Request.Context(), params.ID)
 		if err != nil {
 			if database.IsNotFoundError(err) {
-				c.JSON(http.StatusOK, ServerResponse[error]{
+				c.JSON(http.StatusOK, ServerResponse[string]{
 					Code: common.InvalidArgument,
-					Data: common.ErrNotFound,
+					Data: common.ErrNotFound.Error(),
 				})
 			} else {
-				c.JSON(http.StatusOK, ServerResponse[error]{
+				c.JSON(http.StatusOK, ServerResponse[string]{
 					Code: common.InternalServerError,
-					Data: common.ErrInternalServer,
+					Data: common.ErrInternalServer.Error(),
 				})
 			}
 			return
