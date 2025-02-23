@@ -11,7 +11,7 @@ const (
 )
 
 var (
-	ErrIDRequired     = errors.New("id is required")
+	ErrMissingField   = errors.New("missing field")
 	ErrDuplicatedKey  = errors.New("duplicated key")
 	ErrInternalServer = errors.New("internal server error")
 	ErrNotFound       = errors.New("not found")

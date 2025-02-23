@@ -16,7 +16,7 @@ func GetMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 		if err := c.ShouldBindUri(&params); err != nil {
 			c.JSON(http.StatusOK, ServerResponse[error]{
 				Code: common.InvalidArgument,
-				Data: common.ErrIDRequired,
+				Data: common.ErrMissingField,
 			})
 			return
 		}
@@ -54,11 +54,11 @@ func parseIntoGetMemeCoinResponse(result result.GetMemeCoinResult) GetMemeCoinRe
 
 func CreateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var request CreateMemeCoinRequest
+		var request createMemeCoinRequest
 		if err := c.ShouldBind(&request); err != nil {
 			c.JSON(http.StatusOK, ServerResponse[error]{
 				Code: common.InvalidArgument,
-				Data: common.ErrIDRequired,
+				Data: common.ErrMissingField,
 			})
 			return
 		}
@@ -89,7 +89,7 @@ func UpdateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 		if err := c.ShouldBindUri(&params); err != nil {
 			c.JSON(http.StatusOK, ServerResponse[error]{
 				Code: common.InvalidArgument,
-				Data: common.ErrIDRequired,
+				Data: common.ErrMissingField,
 			})
 			return
 		}
@@ -98,12 +98,43 @@ func UpdateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 		if err := c.ShouldBind(&request); err != nil {
 			c.JSON(http.StatusOK, ServerResponse[error]{
 				Code: common.InvalidArgument,
-				Data: common.ErrIDRequired,
+				Data: common.ErrMissingField,
 			})
 			return
 		}
 
 		err := memeCoinSrv.UpdateMemeCoin(c.Request.Context(), params.ID, request.Description)
+		if err != nil {
+			if database.IsNotFoundError(err) {
+				c.JSON(http.StatusOK, ServerResponse[error]{
+					Code: common.InvalidArgument,
+					Data: common.ErrNotFound,
+				})
+			} else {
+				c.JSON(http.StatusOK, ServerResponse[error]{
+					Code: common.InternalServerError,
+					Data: common.ErrInternalServer,
+				})
+			}
+			return
+		}
+
+		c.JSON(http.StatusOK, SuccessResponse())
+	}
+}
+
+func DeleteMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var params deleteMemeCoinParams
+		if err := c.ShouldBindUri(&params); err != nil {
+			c.JSON(http.StatusOK, ServerResponse[error]{
+				Code: common.InvalidArgument,
+				Data: common.ErrMissingField,
+			})
+			return
+		}
+
+		err := memeCoinSrv.DeleteMemeCoin(c.Request.Context(), params.ID)
 		if err != nil {
 			if database.IsNotFoundError(err) {
 				c.JSON(http.StatusOK, ServerResponse[error]{
