@@ -14,7 +14,7 @@ func Test_MemeCoinRepository(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	pg, err := database.NewPostgres(os.Getenv("DSN"))
+	pg, err := database.NewPostgres(os.Getenv("PG_DSN"))
 	assert.NoError(t, err)
 
 	pg.Migrator().DropTable(
