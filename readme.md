@@ -73,9 +73,9 @@ The API will be available at `http://localhost:8080`
 │   ├── common/         # Shared utilities
 │   ├── config/         # Configuration handling
 │   ├── database/       # Database operations
+│   ├── result/         # struct definition within the service
 │   ├── route/          # API routes
-│   ├── service/        # Business logic
-│   └── middleware/     # Middleware for authentication and logging
+│   └── service/        # Business logic
 ├── mocks/              # Mock files for testing
 ├── postman/            # Postman collection files
 ├── .env                # Environment variables
