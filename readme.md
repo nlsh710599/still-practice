@@ -77,6 +77,7 @@ The API will be available at `http://localhost:8080`
 │   ├── service/        # Business logic
 │   └── middleware/     # Middleware for authentication and logging
 ├── mocks/              # Mock files for testing
+├── postman/            # Postman collection files
 ├── .env                # Environment variables
 ├── docker-compose.yml  # Docker Compose configuration
 ├── Dockerfile          # Docker build file
@@ -86,6 +87,20 @@ The API will be available at `http://localhost:8080`
 ## Health Check
 
 The application includes a health check endpoint at `/health` to verify the service status.
+
+## Postman API Collection
+
+For easy API testing and interaction, we've included a Postman collection in the repository.
+
+### Using the Postman Collection
+
+1. Import the collection into your Postman:
+
+   - Open Postman
+   - Click "Import" button in the top left
+   - Select the file from: `postman/meme coin api.postman_collection.json`
+
+2. All API endpoints are now available for testing with predefined request formats.
 
 ## Testing
 
