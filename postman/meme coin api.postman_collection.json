@@ -1,0 +1,166 @@
+{
+	"info": {
+		"_postman_id": "285f0d86-068b-4b32-a75a-e01776ea2549",
+		"name": "meme coin api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36241012"
+	},
+	"item": [
+		{
+			"name": "get meme coin by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/meme-coin/:id",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"meme-coin",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create meme coin",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"MAGA\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/meme-coin/",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"meme-coin",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update meme coin description",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"description\": \"make america great again\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/meme-coin/:id",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"meme-coin",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete meme coin",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/meme-coin/:id",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"meme-coin",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "poke meme coin",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/meme-coin/:id/poke",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"meme-coin",
+						":id",
+						"poke"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
