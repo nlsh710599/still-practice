@@ -17,18 +17,17 @@ func Setup(r *gin.Engine, db *gorm.DB) error {
 		fmt.Printf("Failed to init meme coin table: %v\n", err)
 		return err
 	}
-	memeCoinService := &service.MemeCoinServiceServiceImpl{MemeCoinRepo: memeCoinRepo}
 
 	healthService := &service.HealthServiceImpl{}
 
 	r.GET("/health", HealthRoute(healthService))
 
 	memeCoinGroup := r.Group("/meme-coin")
-	memeCoinGroup.POST("", CreateMemeCoinRoute(memeCoinService))
-	memeCoinGroup.GET("/:id", GetMemeCoinRoute(memeCoinService))
-	memeCoinGroup.PUT("/:id", UpdateMemeCoinRoute(memeCoinService))
-	memeCoinGroup.DELETE("/:id", DeleteMemeCoinRoute(memeCoinService))
-	memeCoinGroup.PUT("/:id/poke", PokeMemeCoinRoute(memeCoinService))
+	memeCoinGroup.POST("", CreateMemeCoinRoute(memeCoinRepo))
+	memeCoinGroup.GET("/:id", GetMemeCoinRoute(memeCoinRepo))
+	memeCoinGroup.PUT("/:id", UpdateMemeCoinRoute(memeCoinRepo))
+	memeCoinGroup.DELETE("/:id", DeleteMemeCoinRoute(memeCoinRepo))
+	memeCoinGroup.PUT("/:id/poke", PokeMemeCoinRoute(memeCoinRepo))
 
 	return nil
 }

@@ -6,11 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nlsh710599/still-practice/internal/common"
 	"github.com/nlsh710599/still-practice/internal/database"
-	"github.com/nlsh710599/still-practice/internal/result"
-	"github.com/nlsh710599/still-practice/internal/service"
+	m "github.com/nlsh710599/still-practice/internal/database/model"
 )
 
-func GetMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
+func GetMemeCoinRoute(memeCoinRepo m.MemeCoinRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var params getMemeCoinParams
 		if err := c.ShouldBindUri(&params); err != nil {
@@ -21,7 +20,7 @@ func GetMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 			return
 		}
 
-		result, err := memeCoinSrv.GetMemeCoinById(c.Request.Context(), params.ID)
+		result, err := memeCoinRepo.GetMemeCoin(c.Request.Context(), params.ID)
 		if err != nil {
 			if database.IsNotFoundError(err) {
 				c.JSON(http.StatusOK, ServerResponse[string]{
@@ -44,7 +43,7 @@ func GetMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 	}
 }
 
-func parseIntoGetMemeCoinResponse(result *result.GetMemeCoinResult) GetMemeCoinResponse {
+func parseIntoGetMemeCoinResponse(result *m.MemeCoinEntity) GetMemeCoinResponse {
 	return GetMemeCoinResponse{
 		Name:            result.Name,
 		Description:     result.Description,
@@ -52,7 +51,7 @@ func parseIntoGetMemeCoinResponse(result *result.GetMemeCoinResult) GetMemeCoinR
 	}
 }
 
-func CreateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
+func CreateMemeCoinRoute(memeCoinRepo m.MemeCoinRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request createMemeCoinRequest
 		if err := c.ShouldBind(&request); err != nil {
@@ -63,7 +62,12 @@ func CreateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 			return
 		}
 
-		err := memeCoinSrv.CreateMemeCoin(c.Request.Context(), request.Name, request.Description)
+		memeCoin := &m.MemeCoinEntity{
+			Name:        request.Name,
+			Description: request.Description,
+		}
+
+		err := memeCoinRepo.CreateMemeCoin(c.Request.Context(), memeCoin)
 		if err != nil {
 			if database.IsDuplicatedKeyError(err) {
 				c.JSON(http.StatusOK, ServerResponse[string]{
@@ -83,7 +87,7 @@ func CreateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 	}
 }
 
-func UpdateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
+func UpdateMemeCoinRoute(memeCoinRepo m.MemeCoinRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var params updateMemeCoinParams
 		if err := c.ShouldBindUri(&params); err != nil {
@@ -103,7 +107,7 @@ func UpdateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 			return
 		}
 
-		err := memeCoinSrv.UpdateMemeCoin(c.Request.Context(), params.ID, request.Description)
+		err := memeCoinRepo.UpdateMemeCoin(c.Request.Context(), params.ID, request.Description)
 		if err != nil {
 			if database.IsNotFoundError(err) {
 				c.JSON(http.StatusOK, ServerResponse[string]{
@@ -123,7 +127,7 @@ func UpdateMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 	}
 }
 
-func DeleteMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
+func DeleteMemeCoinRoute(memeCoinRepo m.MemeCoinRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var params deleteMemeCoinParams
 		if err := c.ShouldBindUri(&params); err != nil {
@@ -134,7 +138,7 @@ func DeleteMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 			return
 		}
 
-		err := memeCoinSrv.DeleteMemeCoin(c.Request.Context(), params.ID)
+		err := memeCoinRepo.DeleteMemeCoin(c.Request.Context(), params.ID)
 		if err != nil {
 			if database.IsNotFoundError(err) {
 				c.JSON(http.StatusOK, ServerResponse[string]{
@@ -154,7 +158,7 @@ func DeleteMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 	}
 }
 
-func PokeMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
+func PokeMemeCoinRoute(memeCoinRepo m.MemeCoinRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var params pokeMemeCoinParams
 		if err := c.ShouldBindUri(&params); err != nil {
@@ -165,7 +169,7 @@ func PokeMemeCoinRoute(memeCoinSrv service.MemeCoinService) gin.HandlerFunc {
 			return
 		}
 
-		err := memeCoinSrv.PokeMemeCoin(c.Request.Context(), params.ID)
+		err := memeCoinRepo.PokeMemeCoin(c.Request.Context(), params.ID)
 		if err != nil {
 			if database.IsNotFoundError(err) {
 				c.JSON(http.StatusOK, ServerResponse[string]{

@@ -13,7 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nlsh710599/still-practice/internal/common"
 	"github.com/nlsh710599/still-practice/internal/database/model"
-	"github.com/nlsh710599/still-practice/internal/result"
 	"github.com/nlsh710599/still-practice/mocks"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -27,11 +26,7 @@ func Test_parseIntoGetMemeCoinResponse(t *testing.T) {
 		PopularityScore: 0,
 	}
 
-	result := result.GetMemeCoinResult{
-		MemeCoinEntity: memeCoin,
-	}
-
-	response := parseIntoGetMemeCoinResponse(&result)
+	response := parseIntoGetMemeCoinResponse(&memeCoin)
 
 	assert.Equal(t, memeCoin.Name, response.Name)
 	assert.Equal(t, memeCoin.Description, response.Description)
@@ -39,7 +34,7 @@ func Test_parseIntoGetMemeCoinResponse(t *testing.T) {
 }
 
 func Test_GetMemeCoinRoute(t *testing.T) {
-	mockMemeCoinService := &mocks.MemeCoinService{}
+	mockMemeCoinRepo := &mocks.MemeCoinRepository{}
 
 	t.Run("GetMemeCoinRoute - missing field", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -47,7 +42,7 @@ func Test_GetMemeCoinRoute(t *testing.T) {
 
 		c.Request, _ = http.NewRequest(http.MethodGet, "", nil)
 
-		GetMemeCoinRoute(mockMemeCoinService)(c)
+		GetMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -71,9 +66,9 @@ func Test_GetMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		mockMemeCoinService.On("GetMemeCoinById", c.Request.Context(), ID).Return(nil, gorm.ErrRecordNotFound)
+		mockMemeCoinRepo.On("GetMemeCoin", c.Request.Context(), ID).Return(nil, gorm.ErrRecordNotFound)
 
-		GetMemeCoinRoute(mockMemeCoinService)(c)
+		GetMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -97,9 +92,9 @@ func Test_GetMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		mockMemeCoinService.On("GetMemeCoinById", c.Request.Context(), ID).Return(nil, errors.New("whatever error from memecoin service"))
+		mockMemeCoinRepo.On("GetMemeCoin", c.Request.Context(), ID).Return(nil, errors.New("whatever error from memecoin service"))
 
-		GetMemeCoinRoute(mockMemeCoinService)(c)
+		GetMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -111,7 +106,7 @@ func Test_GetMemeCoinRoute(t *testing.T) {
 	})
 
 	t.Run("GetMemeCoinRoute - success", func(t *testing.T) {
-		memeCoin := model.MemeCoinEntity{
+		memeCoin := &model.MemeCoinEntity{
 			ID:              uint(3),
 			Name:            "testCoin",
 			Description:     "testDescription",
@@ -128,11 +123,9 @@ func Test_GetMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		mockMemeCoinService.On("GetMemeCoinById", c.Request.Context(), memeCoin.ID).Return(&result.GetMemeCoinResult{
-			MemeCoinEntity: memeCoin,
-		}, nil)
+		mockMemeCoinRepo.On("GetMemeCoin", c.Request.Context(), memeCoin.ID).Return(memeCoin, nil)
 
-		GetMemeCoinRoute(mockMemeCoinService)(c)
+		GetMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -141,15 +134,13 @@ func Test_GetMemeCoinRoute(t *testing.T) {
 		body, _ := io.ReadAll(res.Body)
 		json.Unmarshal(body, &response)
 		assert.Equal(t, common.Success, response.Code)
-		assert.Equal(t, parseIntoGetMemeCoinResponse(&result.GetMemeCoinResult{
-			MemeCoinEntity: memeCoin,
-		}), response.Data)
+		assert.Equal(t, parseIntoGetMemeCoinResponse(memeCoin), response.Data)
 
 	})
 }
 
 func Test_CreateMemeCoinRoute(t *testing.T) {
-	mockMemeCoinService := &mocks.MemeCoinService{}
+	mockMemeCoinRepo := &mocks.MemeCoinRepository{}
 
 	t.Run("CreateMemeCoinRoute - missing field", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -157,7 +148,7 @@ func Test_CreateMemeCoinRoute(t *testing.T) {
 
 		c.Request, _ = http.NewRequest(http.MethodPost, "", nil)
 
-		CreateMemeCoinRoute(mockMemeCoinService)(c)
+		CreateMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -180,9 +171,12 @@ func Test_CreateMemeCoinRoute(t *testing.T) {
 		c.Request, _ = http.NewRequest(http.MethodPost, "", bytes.NewBuffer(requestJson))
 		c.Request.Header.Add("Content-Type", "application/json;charset=UTF-8")
 
-		mockMemeCoinService.On("CreateMemeCoin", c.Request.Context(), memeCoin.Name, memeCoin.Description).Return(errors.New("duplicate key value violates unique"))
+		mockMemeCoinRepo.On("CreateMemeCoin", c.Request.Context(), &model.MemeCoinEntity{
+			Name:        memeCoin.Name,
+			Description: memeCoin.Description,
+		}).Return(errors.New("duplicate key value violates unique"))
 
-		CreateMemeCoinRoute(mockMemeCoinService)(c)
+		CreateMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -205,9 +199,12 @@ func Test_CreateMemeCoinRoute(t *testing.T) {
 		c.Request, _ = http.NewRequest(http.MethodPost, "", bytes.NewBuffer(requestJson))
 		c.Request.Header.Add("Content-Type", "application/json;charset=UTF-8")
 
-		mockMemeCoinService.On("CreateMemeCoin", c.Request.Context(), memeCoin.Name, memeCoin.Description).Return(errors.New("whatever error from memecoin service"))
+		mockMemeCoinRepo.On("CreateMemeCoin", c.Request.Context(), &model.MemeCoinEntity{
+			Name:        memeCoin.Name,
+			Description: memeCoin.Description,
+		}).Return(errors.New("whatever error from memecoin service"))
 
-		CreateMemeCoinRoute(mockMemeCoinService)(c)
+		CreateMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -230,9 +227,12 @@ func Test_CreateMemeCoinRoute(t *testing.T) {
 		c.Request, _ = http.NewRequest(http.MethodPost, "", bytes.NewBuffer(requestJson))
 		c.Request.Header.Add("Content-Type", "application/json;charset=UTF-8")
 
-		mockMemeCoinService.On("CreateMemeCoin", c.Request.Context(), memeCoin.Name, memeCoin.Description).Return(nil)
+		mockMemeCoinRepo.On("CreateMemeCoin", c.Request.Context(), &model.MemeCoinEntity{
+			Name:        memeCoin.Name,
+			Description: memeCoin.Description,
+		}).Return(nil)
 
-		CreateMemeCoinRoute(mockMemeCoinService)(c)
+		CreateMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -245,7 +245,7 @@ func Test_CreateMemeCoinRoute(t *testing.T) {
 }
 
 func Test_UpdateMemeCoinRoute(t *testing.T) {
-	mockMemeCoinService := &mocks.MemeCoinService{}
+	mockMemeCoinRepo := &mocks.MemeCoinRepository{}
 
 	t.Run("UpdateMemeCoinRoute - missing field on route params", func(t *testing.T) {
 		memeCoin := createMemeCoinRequest{
@@ -258,7 +258,7 @@ func Test_UpdateMemeCoinRoute(t *testing.T) {
 		c.Request, _ = http.NewRequest(http.MethodPut, "", bytes.NewBuffer(requestJson))
 		c.Request.Header.Add("Content-Type", "application/json;charset=UTF-8")
 
-		UpdateMemeCoinRoute(mockMemeCoinService)(c)
+		UpdateMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -282,7 +282,7 @@ func Test_UpdateMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		UpdateMemeCoinRoute(mockMemeCoinService)(c)
+		UpdateMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -311,9 +311,9 @@ func Test_UpdateMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		mockMemeCoinService.On("UpdateMemeCoin", c.Request.Context(), ID, memeCoin.Description).Return(gorm.ErrRecordNotFound)
+		mockMemeCoinRepo.On("UpdateMemeCoin", c.Request.Context(), ID, memeCoin.Description).Return(gorm.ErrRecordNotFound)
 
-		UpdateMemeCoinRoute(mockMemeCoinService)(c)
+		UpdateMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -342,9 +342,9 @@ func Test_UpdateMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		mockMemeCoinService.On("UpdateMemeCoin", c.Request.Context(), ID, memeCoin.Description).Return(errors.New("whatever error from memecoin service"))
+		mockMemeCoinRepo.On("UpdateMemeCoin", c.Request.Context(), ID, memeCoin.Description).Return(errors.New("whatever error from memecoin service"))
 
-		UpdateMemeCoinRoute(mockMemeCoinService)(c)
+		UpdateMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -373,9 +373,9 @@ func Test_UpdateMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		mockMemeCoinService.On("UpdateMemeCoin", c.Request.Context(), ID, memeCoin.Description).Return(nil)
+		mockMemeCoinRepo.On("UpdateMemeCoin", c.Request.Context(), ID, memeCoin.Description).Return(nil)
 
-		UpdateMemeCoinRoute(mockMemeCoinService)(c)
+		UpdateMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -388,7 +388,7 @@ func Test_UpdateMemeCoinRoute(t *testing.T) {
 }
 
 func Test_DeleteMemeCoinRoute(t *testing.T) {
-	mockMemeCoinService := &mocks.MemeCoinService{}
+	mockMemeCoinRepo := &mocks.MemeCoinRepository{}
 
 	t.Run("DeleteMemeCoinRoute - missing field on route params", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -396,7 +396,7 @@ func Test_DeleteMemeCoinRoute(t *testing.T) {
 
 		c.Request, _ = http.NewRequest(http.MethodDelete, "", nil)
 
-		DeleteMemeCoinRoute(mockMemeCoinService)(c)
+		DeleteMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -420,9 +420,9 @@ func Test_DeleteMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		mockMemeCoinService.On("DeleteMemeCoin", c.Request.Context(), ID).Return(gorm.ErrRecordNotFound)
+		mockMemeCoinRepo.On("DeleteMemeCoin", c.Request.Context(), ID).Return(gorm.ErrRecordNotFound)
 
-		DeleteMemeCoinRoute(mockMemeCoinService)(c)
+		DeleteMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -446,9 +446,9 @@ func Test_DeleteMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		mockMemeCoinService.On("DeleteMemeCoin", c.Request.Context(), ID).Return(errors.New("whatever error from memecoin service"))
+		mockMemeCoinRepo.On("DeleteMemeCoin", c.Request.Context(), ID).Return(errors.New("whatever error from memecoin service"))
 
-		DeleteMemeCoinRoute(mockMemeCoinService)(c)
+		DeleteMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -472,9 +472,9 @@ func Test_DeleteMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		mockMemeCoinService.On("DeleteMemeCoin", c.Request.Context(), ID).Return(nil)
+		mockMemeCoinRepo.On("DeleteMemeCoin", c.Request.Context(), ID).Return(nil)
 
-		DeleteMemeCoinRoute(mockMemeCoinService)(c)
+		DeleteMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -487,7 +487,7 @@ func Test_DeleteMemeCoinRoute(t *testing.T) {
 }
 
 func Test_PokeMemeCoinRoute(t *testing.T) {
-	mockMemeCoinService := &mocks.MemeCoinService{}
+	mockMemeCoinRepo := &mocks.MemeCoinRepository{}
 
 	t.Run("PokeMemeCoinRoute - missing field", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -495,7 +495,7 @@ func Test_PokeMemeCoinRoute(t *testing.T) {
 
 		c.Request, _ = http.NewRequest(http.MethodPut, "", nil)
 
-		PokeMemeCoinRoute(mockMemeCoinService)(c)
+		PokeMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -519,9 +519,9 @@ func Test_PokeMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		mockMemeCoinService.On("PokeMemeCoin", c.Request.Context(), ID).Return(gorm.ErrRecordNotFound)
+		mockMemeCoinRepo.On("PokeMemeCoin", c.Request.Context(), ID).Return(gorm.ErrRecordNotFound)
 
-		PokeMemeCoinRoute(mockMemeCoinService)(c)
+		PokeMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -545,9 +545,9 @@ func Test_PokeMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		mockMemeCoinService.On("PokeMemeCoin", c.Request.Context(), ID).Return(errors.New("whatever error from memecoin service"))
+		mockMemeCoinRepo.On("PokeMemeCoin", c.Request.Context(), ID).Return(errors.New("whatever error from memecoin service"))
 
-		PokeMemeCoinRoute(mockMemeCoinService)(c)
+		PokeMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -571,9 +571,9 @@ func Test_PokeMemeCoinRoute(t *testing.T) {
 			},
 		}
 
-		mockMemeCoinService.On("PokeMemeCoin", c.Request.Context(), ID).Return(nil)
+		mockMemeCoinRepo.On("PokeMemeCoin", c.Request.Context(), ID).Return(nil)
 
-		PokeMemeCoinRoute(mockMemeCoinService)(c)
+		PokeMemeCoinRoute(mockMemeCoinRepo)(c)
 
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
