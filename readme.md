@@ -19,7 +19,7 @@ Before running this application, make sure you have the following installed on y
 
 ```bash
 git clone git@github.com:nlsh710599/still-practice.git
-cd meme-coin-api
+cd still-practice
 ```
 
 2. Copy the environment file:
@@ -51,7 +51,7 @@ The API will be available at `http://localhost:8080`
 
 ```bash
 git clone git@github.com:nlsh710599/still-practice.git
-cd meme-coin-api
+cd still-practice
 ```
 
 2. Before proceeding, check `docker-compose.yml` and ensure that the ports being exposed are not occupied.
